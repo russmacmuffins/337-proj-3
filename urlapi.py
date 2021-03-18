@@ -23,7 +23,7 @@ url3 = 'https://www.allrecipes.com/recipe/166583/spicy-chipotle-turkey-burgers/?
 
 
 # incomplete, but a start
-# liters, gallons, oz, fl oz, bottle, abbreviations of the above, pint, mL, quarts, 
+# liters, gallons, oz, fl oz, bottle, abbreviations of the above, pint, mL, quarts,
 # clove, dash, pinch, cube, can, kg, strip, piece, slice, packet, package, head, bunch
 nouns = ["NN","NNP","NNS"]
 adj = ["JJ","JJR","JJS","DT"]
@@ -68,7 +68,7 @@ Lithuanian_sub = {"vegetable oil": "flaxseed oil", "coconut oil": "flaxseed oil"
      "goose": "chicken", "mutton": "lamb", "veal": "lamb", "rabbit": "lamb",
      "walleye": "zander", "cod": "perch", "tuna": "pike",
      "basil": "bay leaf", "rosemary": "caraway", "thyme": "coriander" ,"parsley": "horseradish",
-     "paprika": "coriander", "saffron": "oregano", "cumin": "horseradish", 
+     "paprika": "coriander", "saffron": "oregano", "cumin": "horseradish",
      "wheat bread": "rye bread", "bagel": "rye bread", "biscuit": "rye bread", "brioche": "rye",
      "ciabatta":"rye", "naan": "rye bread","pita": "rye bread", "chile": "garlic",
      "wasabi": "horseradish","fennel": "bay leaf","chives": "coriander","sage":"bay leaf",
@@ -77,7 +77,7 @@ Lithuanian_sub = {"vegetable oil": "flaxseed oil", "coconut oil": "flaxseed oil"
      "swiss cheese": "dziugas", "blue cheese": "liliputas", "american cheese": "dziugas", "cheddar cheese": "dziugas",
      "parmesan": "dziugas","mozzarella": "dziugas", "brie": "liliputas"}
 
-dairy_free_sub = {"milk": "soy milk", "butter": "coconut oil", "cream": "coconut cream", 
+dairy_free_sub = {"milk": "soy milk", "butter": "coconut oil", "cream": "coconut cream",
     "parmesan": "nutritional yeast", "yogurt": "applesauce", "mayonnaise": "vegenaise", "cheese": "vegan cheese"}
 
 
@@ -102,7 +102,7 @@ def get_tools(url):
     instructions = j[1]['recipeInstructions']
 
     tool=set()  # so we don't get duplicates
-    
+
     """
     tool1=set()
     for step in instructions:
@@ -110,7 +110,7 @@ def get_tools(url):
             if word in tools:
                 tool1.add(tools[word])
     """
-    
+
     for step in instructions:
         sent = step['text'].lower()
         words = nltk.word_tokenize(sent)
@@ -129,7 +129,7 @@ def get_tools(url):
         for w in ing_words:
             if w in tool:
                 tool.remove(w)
-            
+
     return tool
 
 """
@@ -147,7 +147,7 @@ def get_steps(url, isEnglish):
     instructions = j[1]['recipeInstructions']
     ingredients = ingPy.get_ingredients(url)
 
-    if isEnglish: 
+    if isEnglish:
         steps = []
         for step in instructions:
             steps.append(step['text'].lower().strip())
@@ -185,20 +185,20 @@ def get_steps(url, isEnglish):
             for word in tok:
                 if word[0] in step and (word[1] == "NN" or word[1] == "NNS"):
                     ingred.append(word[0])
-    
+
         ingred = checker(ingred)
         # getting tools, but from the list of commonly used tools at the top
         # could be altered to use get_tools
         for t in tools_2:
             if t in step:
                 tools.append(t)
-        
+
         # assuming first word is always an action verb, then also looking for other verbs
         action.append(pos[0][0])
         for word in pos:
             if word[1] == 'VB':
                 action.append(word[0])
-        
+
         # getting time...most steps dont have a time to it'll return an empty list for that
         for m in time_measure:
             if m in toks:
@@ -283,7 +283,7 @@ def health_sub_help(step):
         next = next.replace(i, health_sub[i])
     return next
 
-def double(recipe): 
+def double(recipe):
     ing = recipe['ingredients']
     for key in ing:
         if ing[key][0] is not None:
@@ -304,10 +304,10 @@ def double(recipe):
 
 
 
-def halve(recipe): 
+def halve(recipe):
     ing = recipe['ingredients']
     p = nltk.PorterStemmer()
-    
+
     for key in ing.copy():
         if ing[key][0] is not None:
             if 1 < ing[key][0] <= 2:  # plurals need changing
@@ -321,7 +321,7 @@ def halve(recipe):
                         i += 1
                     ing[key][1] = ' '.join(ing_lst)
                     ing[key][0] /= 2
-                
+
                 else: # the plural that needs changing is in the desc, not the measure
                     ing_lst = key.split()
                     i = 0
@@ -329,16 +329,16 @@ def halve(recipe):
                         if pos == 'NNS':
                             ing_lst[i] = p.stem(word)
                         i += 1
-                    
+
                     new_key = ' '.join(ing_lst)
                     new_val = ing[key]
                     del ing[key]
                     ing[new_key] = new_val
                     ing[new_key][0] /= 2
-                    
+
                 # could be chicken BREASTS or CLOVES garlic
                 # de-pluralize
-            else: 
+            else:
                 ing[key][0] /= 2
             #print(ing[key])
 
@@ -422,7 +422,7 @@ def url_to_recipe(url):
 #print(transform(url2, dairy_free_sub))
 def url_to_transform(url, transform):
     ing, steps = transform(url)
-    
+
     recipe = {
         'name': get_recipe_name(url),
         'ingredients': ing,
@@ -434,7 +434,7 @@ def url_to_transform(url, transform):
 
 def url_to_transform_gen(url, third):
     ing, steps = transform(url, third)
-    
+
     recipe = {
         'name': get_recipe_name(url),
         'ingredients': ing,
@@ -510,13 +510,13 @@ def main():
     url = input("Hello! I can help you with a recipe. Enter a URL to parse!\n")
     while "allrecipes" not in url:
         url = input("This URL doesn't work (must be AllRecipes). Try again:")
-    
+
     run = True
     while run:
         # get a transform
-        function = input('''What would you like to do? \n 
+        function = input('''What would you like to do? \n
         [a] Parse as-is
-        [b] Transform to vegetarian 
+        [b] Transform to vegetarian
         [c] Parse with recipe doubled
         [d] Parse with recipe halved
         [e] Transform to Lithuanian
@@ -539,18 +539,19 @@ def main():
             print("Okay! Bye!")
             run = False
             break
-        else: 
+        else:
             print("Sorry, I didn\'t understand that. You can enter 'Q' at any time to quit.")
             run = True
-        
+
         # print information (basic goal 1, to expand on this we could use regex to scan for keywords)
         step = 0
+        prevStep = -1
         if recipe:
             print("Ok, let's do that with your recipe, \'%s\'. " % recipe['name'])
         while recipe:
-            function = input('''What would you like to see? \n 
+            function = input('''What would you like to see? \n
             [a] Ingredients
-            [b] Steps 
+            [b] Steps
             [c] Tools
             [d] Methods
             [e] All of the above
@@ -565,9 +566,10 @@ def main():
                     if oneByOne == "2":
                         print_steps(recipe)
                     elif oneByOne == "1":
-                        print("You can tell me to go forward, backward, start over, or go to a particular step at any time.")
+                        print("You can tell me to go forward, backward, start over, or go to a particular step.")
                         print("Your recipe has " + str(len(recipe['steps'])) + ' steps.')
                         print_step(recipe, step)
+                        prevStep = step
                         step += 1
                     else:
                         print('Hmm, I didn\'t catch that.')
@@ -579,7 +581,7 @@ def main():
             elif function == 'e' or function == 'E':
                 print_all(recipe)
             elif function == 'f' or function == 'F':
-                handle_question(recipe)
+                handle_question(recipe, prevStep)
 
             elif function == 'q' or function == 'Q' or function == 'quit' or function == "Quit":
                 print("Okay! Bye!")
@@ -590,38 +592,42 @@ def main():
             # navigate forward and back a step at a time (goal 2, complete)
             elif 'forward' in function or 'next' in function:
                 doStep = True
-                if 'step' not in function: 
+                if 'step' not in function:
                     check = input("To be clear, you'd like to see the next step? [1] Yes [2] No \n")
-                    if check == '2': doStep = False 
+                    if check == '2': doStep = False
                 if doStep:
                     if step < len(recipe['steps']) - 1:
                         #step += 1
                         print_step(recipe, step)
+                        prevStep = step
                         step += 1
-                    else: 
+                    else:
                         print("There is no next step! Here is the last step: ")
+                        prevStep = step
                         step = len(recipe['steps']) - 1
                         print_step(recipe, step)
 
             elif 'backward' in function or 'back' in function or 'previous' in function:
                 doStep = True
-                if 'step' not in function: 
+                if 'step' not in function:
                     check = input("To be clear, you'd like to see the previous step? [1] Yes [2] No \n")
-                    if check == '2': doStep = False 
+                    if check == '2': doStep = False
                 if doStep:
                     if step > 0:
+                        prevStep = step
                         step -= 1
                         print_step(recipe, step)
-                    else: 
+                    else:
                         print("There is no previous step! Here is the first step: ")
                         print_step(recipe, 0)
+                        prevStep = step
                         step = 0
 
             elif re.search(r"\bstep\b", function): # the word "step" with word boundaries at either side
                 found = False
                 for word in function.lower().split():
                     nth = re.match(r"([0-9]+)", word)
-                    if nth: 
+                    if nth:
                         found = True
                         num = nth.group(0)
                         if int(num) > 0 and int(num) < len(recipe['steps']) + 1:
@@ -631,15 +637,15 @@ def main():
                         else:
                             print("Sorry, that step number is out of bounds.")
                             print("Your recipe has " + str(len(recipe['steps'])) + ' steps.')
-                if not found: 
+                if not found:
                     print('Sorry, which step would you like to see? Please use numerals rather than spelled out words.')
 
-            else: 
+            else:
                 print("Sorry, I didn\'t understand that. You can enter 'Q' at any time to quit.")
 
 
 
-def handle_question(recipe):
+def handle_question(recipe, step):
     # here we handle specific how-to questions (goal 4, to expand we will need other question forms)
     # for now, i'm only taking questions of the form "How do I <xyz>?"
     # we will also need to handle "vague questions" like "how do i do that" (goal 3)
@@ -649,15 +655,46 @@ def handle_question(recipe):
     question = None
     while not question:
         question = input("Okay! What's your question? \n")
-        q = question.lower() 
-        if q[:9] == 'how do i ':
-            print('''I found this on the web for "%s": 
+        q = question.lower()
+        if q[:16] == 'how do i do that':
+            if step == -1:
+                print("I'm not sure what you mean.")
+            else:
+                print("I found this on the web.")
+                key = slice_step(recipe['steps'][step])
+                print(get_link_from_q(key))
+        elif q[:9] == 'how do i ':
+            print('''I found this on the web for "%s":
             ''' % question)
             print(get_link_from_q(q[9:]))
-        else: 
-            print('''I'm sorry, I don't know how to help you with that question yet. 
-            Try asking questions of the form "How do I..." 
+        elif q[:8] == 'what is ':
+            print('''I found this on the web for "%s":
+            ''' % question)
+            print(get_link_from_q_what(q[8:]))
+        elif q[:9] == 'what are ':
+            print('''I found this on the web for "%s":
+            ''' % question)
+            print(get_link_from_q_what(q[9:]))
+        else:
+            print('''I'm sorry, I don't know how to help you with that question yet.
+            Try asking questions of the form "How do I..."
             ''')
+
+def slice_step(step):
+    done = False
+    keys = ""
+    splits = step.split()
+    for i in splits:
+        if i == "for" or i == "to" or i == "and" or "into":
+            done = True
+        elif i == ".":
+            break
+        elif i == ",":
+            keys = ""
+            done = False
+        if not(done):
+            keys = keys + " " + i
+    return keys
 
 def get_link_from_q(q):
     q = q.translate(str.maketrans('', '', string.punctuation))
@@ -669,6 +706,17 @@ def get_link_from_q(q):
     for word in query:
         link += '+' + word
     return link
+
+def get_link_from_q_what(q):
+    q = q.translate(str.maketrans('', '', string.punctuation))
+    query = []
+    for word in q.split(' '):
+        if word not in stop_words:
+            query.append(word)
+    link ='https://www.google.com/search?q='
+    for word in query:
+        link += word + '+'
+    return link[:-1]
 
 def print_all(recipe):
     print('Recipe name: ' + recipe['name'])
@@ -695,5 +743,3 @@ main()
 
 #print(double(url_to_recipe(url2)))
 #print(halve(url_to_recipe(url2)))
-
-
