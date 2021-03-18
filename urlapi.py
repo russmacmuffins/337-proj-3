@@ -512,6 +512,7 @@ def main():
         url = input("This URL doesn't work (must be AllRecipes). Try again:")
 
     run = True
+    kendo = True
     while run:
         # get a transform
         function = input('''What would you like to do? \n
@@ -527,14 +528,17 @@ def main():
             recipe = url_to_recipe(url)
         elif function == 'b' or function == 'B':
             recipe = url_to_transform(url, veg_transform)
+            kendo = False
         elif function == 'c' or function == 'C':
             recipe = double(url_to_recipe(url))
         elif function == 'd' or function == 'D':
             recipe = halve(url_to_recipe(url))
         elif function == 'e' or function == 'E':
             recipe = url_to_transform_gen(url, Lithuanian_sub)
+            kendo = False
         elif function == 'f' or function == 'F':
             recipe = url_to_transform_gen(url, health_sub)
+            kendo = False
         elif function == 'q' or function == 'Q' or function == 'quit' or function == "Quit":
             print("Okay! Bye!")
             run = False
@@ -581,7 +585,7 @@ def main():
             elif function == 'e' or function == 'E':
                 print_all(recipe)
             elif function == 'f' or function == 'F':
-                handle_question(recipe, prevStep)
+                handle_question(recipe, prevStep, kendo)
 
             elif function == 'q' or function == 'Q' or function == 'quit' or function == "Quit":
                 print("Okay! Bye!")
@@ -645,7 +649,7 @@ def main():
 
 
 
-def handle_question(recipe, step):
+def handle_question(recipe, step, kendo):
     # here we handle specific how-to questions (goal 4, to expand we will need other question forms)
     # for now, i'm only taking questions of the form "How do I <xyz>?"
     # we will also need to handle "vague questions" like "how do i do that" (goal 3)
@@ -675,10 +679,27 @@ def handle_question(recipe, step):
             print('''I found this on the web for "%s":
             ''' % question)
             print(get_link_from_q_what(q[9:]))
+        elif q[:9] == 'how much ' or q[:9] == 'how many ':
+            print(get_ingredient_quantity(q[9:], recipe))
         else:
             print('''I'm sorry, I don't know how to help you with that question yet.
             Try asking questions of the form "How do I..."
             ''')
+
+def get_ingredient_quantity(string, recipe):
+    print(recipe['ingredients'])
+    for i in recipe['ingredients']:
+        if i in string:
+            if recipe['ingredients'][i][1] == None:
+                print("You need " + str(recipe['ingredients'][i][0]) + " of " + i)
+            else:
+                print("You need " + str(recipe['ingredients'][i][0]) + " " + recipe['ingredients'][i][1] + " of " + i)
+            return
+    print("I couldn't find that ingredient in your current recipe. Are you sure that you need it for this?")
+    return
+
+
+
 
 def slice_step(step):
     done = False
